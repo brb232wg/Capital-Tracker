@@ -10,6 +10,18 @@ st.set_page_config(
     layout="wide"
 )
 
+st.markdown("""
+<style>
+    .stApp {
+        background-color: #05080d;
+        color: white;
+    }
+    [data-testid="stSidebar"] {
+        background-color: #10131a;
+    }
+</style>
+""", unsafe_allow_html=True)
+
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DB_PATH = os.path.join(
     BASE_DIR,
@@ -91,18 +103,57 @@ country_summary = country_summary.dropna(subset=["iso3"])
 # --- Map ---
 st.subheader("Registered Entity Breakdown by Country")
 
+metric = st.sidebar.selectbox(
+    "Map Metric",
+    ["entity_count", "avg_risk", "high_risk_count"]
+)
+
 fig_map = px.choropleth(
     country_summary,
     locations="iso3",
-    color="entity_count",
+    color=metric,
     hover_name="Registered_country",
     hover_data={
         "entity_count": True,
         "avg_risk": ":.2f",
-        "high_risk_count": True
+        "high_risk_count": True,
+        "iso3": False
     },
-    color_continuous_scale="Reds",
+    color_continuous_scale=[
+        [0.0, "#1b1b1b"],
+        [0.3, "#5c1f1f"],
+        [0.6, "#b22222"],
+        [1.0, "#ff2e2e"]
+    ],
     projection="natural earth"
+)
+
+fig_map.update_geos(
+    showframe=False,
+    showcoastlines=True,
+    coastlinecolor="#555555",
+    showland=True,
+    landcolor="#111111",
+    showocean=True,
+    oceancolor="#05080d",
+    showcountries=True,
+    countrycolor="#333333",
+    bgcolor="#05080d"
+)
+
+fig_map.update_layout(
+    height=720,
+    paper_bgcolor="#05080d",
+    plot_bgcolor="#05080d",
+    font=dict(color="white"),
+    margin=dict(l=0, r=0, t=10, b=0),
+    coloraxis_colorbar=dict(
+        title=dict(
+            text=metric,
+            font=dict(color="white")
+        ),
+        tickfont=dict(color="white")
+    )
 )
 
 st.plotly_chart(fig_map, width="stretch")
