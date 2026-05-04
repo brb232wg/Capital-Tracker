@@ -190,7 +190,7 @@ df = pd.DataFrame(data)
 #Local database file
 db_path = os.path.join(output_dir, "sanctions_network.db")
 conn = sqlite3.connect(db_path)
-df.to_sql("entities", conn, if_exists="replace", index=False)
+df.to_sql("entities", conn, if_exists="replace", index=False)  #if_exists set to 'replace', change to 'append' to cascade add
 
 cursor = conn.cursor()
 cursor.execute("SELECT COUNT(*) FROM entities")
